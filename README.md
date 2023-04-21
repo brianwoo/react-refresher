@@ -1,70 +1,228 @@
-# Getting Started with Create React App
+# React Refresh
+## React Tutorial - Dojo-blog - Net Ninja
+https://www.youtube.com/playlist?list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## React Hook - Web Dev Simplified
+https://www.youtube.com/playlist?list=PLZlA0Gpn_vH8EtggFGERCwMY5u5hOjf-h
 
-## Available Scripts
+<br/>
 
-In the project directory, you can run:
+## React and React-Router installation
+```bash
+npx create-react-app my-app # javascript project
+npx create-react-app my-app --template typescript # ts project
 
-### `npm start`
+npm install react-router-dom
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Startup
+```bash
+# react
+npm start
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# json-server for API
+npx json-server --watch data/db.json --port 8000 --delay 1000
+```
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## useState
+- useState keeps a page's state, when the update method is called the page is re-rendered and the page is updated.
 
-### `npm run build`
+### Different variations of useState()
+```js
+// Variations of useState:
+// 1. useState takes a function
+const [count, setCount] = useState(() => getValue())
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+// 2. useState takes a value
+const [count, setCount] = useState(getValue())
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+// NOTE: For #2, getValue() will be exec EVERYTIME when page is 
+// re-rendered (e.g. when setCount is called)
+// NOT A GOOD OPTION if getValue() takes a long time to exec.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+### Different variations of set method
+```js
+const [count, setCount] = useState(5);
 
-### `npm run eject`
+// method setCount() is to update the state
+// which will also make the page to re-render
+setCount(6);
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+// or another variation of the set function
+setCount((prevCount) => prevCount + 1);
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### useState - if state is an object
+```js
+const [state, setState] = useState({count: 4, theme: 'blue'});
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+// Need to use a spread operator, theme remains 'blue'
+setState(prevState => {
+    return {...prevState, count: prevState.count - 1};
+});
+```
+<br/>
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## useEffect
+- useEffect runs at every page render
+    - which includes initial page render
+    - or useState state update page re-render
+- **Be careful** when changing the state inside useEffect
+    - updating state -> re-render -> useEffect -> **infinite loop**
+- useEffect dependencies
+    - pass in the dependency array
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+// Basic without dependencies
+useEffect(() => {
+    console.log('use effect ran');
+});
+```
 
-### Code Splitting
+```js
+// With dependency array
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+// empty dependency array means useEffect only
+// runs at initial page render
+useEffect(() => {
+    console.log('use effect ran');
+}, []);
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+const [name, setName] = useState('mario');
 
-### Making a Progressive Web App
+// this useEffect runs at initial page render and 
+// when "name" is updated by setName
+useEffect(() => {
+    console.log('use effect ran');
+}, [name]);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Fetch in useEffect
+```js
+useEffect(() => {
+    fetch('http://localhost:8000/blogs')
+        .then(res => {
+            if (!res.ok) {
+                throw Error('Could not fetch data for resource');
+            }
+            return res.json();
+        })
+        .then((data) => {
+            setBlogs(data);
+            setIsPending(false);
+            setError(null);
+        })
+        .catch((err) => {
+            // catches network errors + http not OK errors
+            setIsPending(false);
+            setError(err.message);
+        })
+}, []);
+```
 
-### Advanced Configuration
+### useEffect with a Clean Up function
+- Clean up is useful when a component unmounts before a promise resolves
+- To avoid memory leaks
+- Cleanup function executed automatically when the component unmounts
+- **NOTE:** When abortCont.abort() is called, err will be thrown, Make sure no set state method is called in catch() **(reason component is unmounted)**
+```js
+useEffect(() => {
+    const abortCont = new AbortController();
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+    fetch(url, { signal: abortCont.signal })
+        .then(res => {
+            ...
+        })
+        .catch((err) => {
+            // we don't want to update the state
+            if (err.name === 'AbortError') {
+                console.log('fetch aborted');
+            }
+            else {
+                // catches network errors + http not OK errors
+                setIsPending(false);
+                setError(err.message);
+            }
+        })
+    // Use clean up function here to abort
+    return () => abortCont.abort();
+}, [url]);
+```
+<br/>
 
-### Deployment
+## useNavigate (from react-router-dom v6)
+- support goForward, goBack and redirect functionalities
+```js
+const navigate = useNavigate();
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+navigate(-1);      // go back 1 page
+navigate(1);       // go forward 1 page
+navigate('/home'); // redirect to another page
+```
+<br/>
 
-### `npm run build` fails to minify
+## Custom Hook
+- A custom hook must start with a prefix useXXXX
+- A custom hook can also include other hooks
+- Parameters and return are also available
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```js
+const useFetch = (url) => {
+    const [data, setData] = useState(null);
+    const [isPending, setIsPending] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetch(url)
+            .then(res => {
+                if (!res.ok) {
+                    throw Error('Could not fetch data');
+                }
+                return res.json();
+            })
+            .then((data) => {
+                console.log(data);
+                setData(data);
+                setIsPending(false);
+                setError(null);
+            })
+            .catch((err) => {
+                // catches network errors + http not OK errors
+                setIsPending(false);
+                setError(err.message);
+            })
+    }, [url]);
+
+    return { data, isPending, error };
+};
+
+export default useFetch;
+```
+<br/>
+
+
+
+## React-Router Link vs HTML anchor
+- Using Link, React intercepts a route to NOT hit the server when a link is clicked
+- Using HTML anchor works, but the app will hit the server when a link is clicked
+```js
+<Link to="/">Home</Link>
+<a href="/create">New Blog</a>
+```
+<br/>
+
+## StrictMode
+- StrictMode is used to identify potential issues in a web app.
+- **NOTE:** It may render components twice in DEV mode **(useEffect exec 2x)**
+
+```js
+// To disable StrictMode in index.js:
+// <React.StrictMode>
+<App />
+// </React.StrictMode>
+```
