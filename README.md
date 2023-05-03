@@ -76,6 +76,7 @@ setState(prevState => {
     - updating state -> re-render -> useEffect -> **infinite loop**
 - useEffect dependencies
     - pass in the dependency array
+    - dependencies are related by OR. i.e. ONE dependency is changed useEffect is going to exec.
 
 ```js
 // Basic without dependencies
@@ -156,6 +157,73 @@ useEffect(() => {
 ```
 <br/>
 
+## useMemo
+- useMemo is used to cache a value and to return a cached value to speed things up
+- **Benefit #1**: useMemo is useful when a slow operation is used
+- When a function is wrapped by useMemo, if the dependency has not been changed, the same (cached) value is returned
+- **Benefit #2**: useMemo is useful if its return value is an  object reference. The returned ref remains the same if a dependency passed in has not been changed. This ref can be used as a dependency of another useEffect and to determine (via referential equality) if this useEffect is executed or not 
+- [useMemo Example](./src/UseMemoDemo.js)
+
+<br/>
+
+## useCallback
+- useCallback is used to cache a created function. A function is not created again until a dependency is changed
+- Similar to useMemo, useCallback returns a function, not a value
+- **Benefit**: useCallback is useful when used with useEffect where a function ref returned from useCallback is used as a dependency in useEffect. This tells if useEffect to execute or not
+- [useCallback Example](./src/UseCallbackDemo.js)
+
+<br/>
+
+
+## useRef
+- **Use case #1**: useRef is similar to useState but unlike useState, useRef does NOT cause a re-render the page when a useRef value is updated
+- **Use case #2**: useRef is also used to reference a DOM object
+- When passing a ref to a custom component, need to React.forwardRef()
+- [useRef Example 1](./src/UseRefDemo.js)
+- [useRef Example 2](./src/UseRefDemo1.js)
+
+<br/>
+
+## useContext
+- useContext is used to pass values / functions down to the child components without prop drilling (i.e. a global state to children)
+- It's also possible to wrap useContext with a custom hook (Example #2)
+- [useContext Example 1](./src/UseContextDemo.js)
+- [useContext Example 2](./src/UseContextDemo1.js)
+
+<br/>
+
+## useReducer
+- useReducer is used to manage states (more complex object)
+- When a state is updated, screen is re-rendered
+- dispatch function is used to send different actions to a reducer
+- A single dispatch function is used instead of individual handlers
+- The reducer returns a NEW value / object (not an updated object)
+- [useReducer Example 1](./src/UseReducerDemo.js)
+- [useReducer Example 2](./src/UseReducerDemo1.js)
+
+<br/>
+
+## useLayoutEffect
+- useLayoutEffect is the same as useEffect except:
+    - it's synchronously run
+    - it's run after React calculates the DOM changes but before it paints these changes to the screen
+
+<br/>
+
+## useTransition (React 18)
+- useTransition is used to separate high priority and low priority rendering
+- startTransition(): code inside this method is run in low priority
+- isPending: bool flag is true if startTransition() is STILL being executed, use this to print "Loading..." message
+- [useTransition Example 1](./src/UseTransitionDemo.js)
+
+<br/>
+
+## useDeferredValue (React 18)
+- useDeferredValue gives a delay before some information is calculated (similar to debouncing)
+- [useDeferredValue Example](./src/UseDeferredValueDemo.js)
+
+<br/>
+
 ## useNavigate (from react-router-dom v6)
 - support goForward, goBack and redirect functionalities
 ```js
@@ -165,6 +233,19 @@ navigate(-1);      // go back 1 page
 navigate(1);       // go forward 1 page
 navigate('/home'); // redirect to another page
 ```
+<br/>
+
+## useDebugValue (React 18)
+- useDebugValue only works in custom hooks
+```js
+// basic: just print out debug value in React Developer Tools (Component view)
+useDebugValue(value);
+
+// This 2nd arg (the function) only exec if debug console is opened
+useDebugValue(value, v => getValueSlowly(v));
+
+```
+
 <br/>
 
 ## Custom Hook
