@@ -189,6 +189,8 @@ useEffect(() => {
 - It's also possible to wrap useContext with a custom hook (Example #2)
 - [useContext Example 1](./src/UseContextDemo.js)
 - [useContext Example 2](./src/UseContextDemo1.js)
+- [ContextComponent Example 3](./src/ContextComponent2.js)
+- [useContext Example 3](./src/UseContextDemo2.js)
 
 <br/>
 
