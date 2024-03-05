@@ -288,6 +288,12 @@ export default useFetch;
 <br/>
 
 
+## Optimization (Reducing component from re-rendering)
+- Keep a component state local, if possible
+- Using hooks - useCallback() & useMemo()
+- Memoizing React Components to prevent unneccessary re-rendering
+- [Memoizing Component Example](./src/MemoComponent.js)
+
 
 ## React-Router Link vs HTML anchor
 - Using Link, React intercepts a route to NOT hit the server when a link is clicked
