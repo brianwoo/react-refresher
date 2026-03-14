@@ -192,6 +192,19 @@ useEffect(() => {
 - Better way of implementing context:
     - [ContextComponent Example 3](./src/ContextComponent2.tsx)
     - [useContext Example 3](./src/UseContextDemo2.tsx)
+    - Add Context Provider (e.g. SessionInfoContextProvider) higher in the component tree:
+    ```
+      <BrowserRouter>
+        <SessionInfoContextProvider>
+          <Navbar></Navbar>
+          <div className="content">
+            <Routes>
+              <Route path="/useContext" element={<UseContextDemo2 />} />
+            </Routes>
+          </div>
+        </SessionInfoContextProvider>
+      </BrowserRouter>
+    ```
 
 <br/>
 
